@@ -1,51 +1,72 @@
-const SUSPENDED_TABS = new Set();
+// Persistent tab suspension mechanism
+const SUSPEND_KEY = 'tab_suspension_data';
 
-function createSuspendPageUrl(tabId, originalUrl, originalTitle) {
-  const encodedUrl = encodeURIComponent(originalUrl);
-  const encodedTitle = encodeURIComponent(originalTitle);
-  return `suspend.html?tabId=${tabId}&url=${encodedUrl}&title=${encodedTitle}`;
+async function saveSuspendedTabInfo(tab) {
+  const suspendedTabs = await chrome.storage.local.get(SUSPEND_KEY);
+  const currentSuspendedTabs = suspendedTabs[SUSPEND_KEY] || {};
+  
+  currentSuspendedTabs[tab.url] = {
+    title: tab.title,
+    originalUrl: tab.url,
+    suspendedAt: Date.now()
+  };
+
+  await chrome.storage.local.set({ 
+    [SUSPEND_KEY]: currentSuspendedTabs 
+  });
 }
 
 async function suspendTab(tabId) {
   try {
     const tab = await chrome.tabs.get(tabId);
     
-    await chrome.tabs.update(tabId, {
-      url: createSuspendPageUrl(tabId, tab.url, tab.title)
-    });
+    // Save tab info before suspension
+    await saveSuspendedTabInfo(tab);
 
-    SUSPENDED_TABS.add(tabId);
+    // Create suspend URL with encoded original details
+    const suspendUrl = `suspend.html?url=${encodeURIComponent(tab.url)}`;
+    
+    await chrome.tabs.update(tabId, { url: suspendUrl });
+    
     console.log(`Tab ${tabId} suspended`);
   } catch (error) {
     console.error('Suspension failed:', error);
   }
 }
 
-async function resumeTab(tabId) {
+async function resumeTab(tabId, url) {
   try {
-    const storageKey = `suspended_tab_${tabId}`;
-    const storedData = await chrome.storage.local.get(storageKey);
+    const suspendedTabs = await chrome.storage.local.get(SUSPEND_KEY);
+    const currentSuspendedTabs = suspendedTabs[SUSPEND_KEY] || {};
     
-    if (storedData[storageKey]) {
+    // Find the original tab info
+    const tabInfo = currentSuspendedTabs[url];
+    
+    if (tabInfo) {
+      // Restore the original URL
       await chrome.tabs.update(tabId, { 
-        url: storedData[storageKey] 
+        url: tabInfo.originalUrl 
       });
       
-      await chrome.storage.local.remove(storageKey);
-      SUSPENDED_TABS.delete(tabId);
+      // Remove this entry from suspended tabs
+      delete currentSuspendedTabs[url];
+      await chrome.storage.local.set({ 
+        [SUSPEND_KEY]: currentSuspendedTabs 
+      });
     }
   } catch (error) {
     console.error('Resume failed:', error);
   }
 }
 
+// Message listener
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   switch(request.action) {
     case 'suspendTab':
       suspendTab(request.tabId);
       break;
     case 'resumeTab':
-      resumeTab(request.tabId);
+      resumeTab(request.tabId, request.url);
       break;
   }
 });

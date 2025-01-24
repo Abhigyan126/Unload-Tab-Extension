@@ -1,27 +1,26 @@
 document.getElementById('resumeBtn').addEventListener('click', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabId = parseInt(urlParams.get('tabId'));
-    
-    chrome.runtime.sendMessage({ 
-      action: 'resumeTab', 
-      tabId: tabId 
-    });
-  });
+  const urlParams = new URLSearchParams(window.location.search);
+  const originalUrl = decodeURIComponent(urlParams.get('url'));
   
-  window.addEventListener('load', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const originalUrl = decodeURIComponent(urlParams.get('url'));
-    const originalTitle = decodeURIComponent(urlParams.get('title'));
-    const tabId = parseInt(urlParams.get('tabId'));
-    
-    // Display original page title
-    const titleElement = document.getElementById('originalTitle');
-    titleElement.textContent = originalTitle;
-    
-    document.title = `U: ${originalTitle}`;
-    
-    // Store the original URL
-    chrome.storage.local.set({
-      [`suspended_tab_${tabId}`]: originalUrl
-    });
+  chrome.runtime.sendMessage({ 
+    action: 'resumeTab', 
+    url: originalUrl 
   });
+});
+
+window.addEventListener('load', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const originalUrl = decodeURIComponent(urlParams.get('url'));
+  
+  // Fetch saved tab info
+  chrome.storage.local.get('tab_suspension_data', (data) => {
+    const suspendedTabs = data.tab_suspension_data || {};
+    const tabInfo = suspendedTabs[originalUrl];
+    
+    if (tabInfo) {
+      // Update page with original title
+      document.title = `U: ${tabInfo.title}`;
+      document.getElementById('originalTitle').textContent = tabInfo.title;
+    }
+  });
+});
