@@ -1,5 +1,7 @@
 # Tab Unloader - Chrome Extension
-
+<p align="center">
+  ![icon128](https://github.com/user-attachments/assets/b9766d7a-80e7-4f2a-a6e8-755f47e6844e)
+</p><br>
 ## Overview
 Conserve browser resources by intelligently suspending inactive tabs, reducing memory and CPU usage.
 
