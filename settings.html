@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Tab Unloader Settings</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .site-list {
+      margin-top: 10px;
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+    .site-item {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+      padding: 5px;
+      background-color: #f1f1f1;
+    }
+    input[type="text"] {
+      flex-grow: 1;
+      margin-right: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tab Unloader Settings</h1>
+  
+  <h2>Exclude Websites from Unloading</h2>
+  <div>
+    <input type="text" id="newSite" placeholder="Enter website URL">
+    <button id="addSite">Add Exclusion</button>
+  </div>
+  
+  <div id="excludedSites" class="site-list"></div>
+  
+  <h2>Global Settings</h2>
+  <label>
+    <input type="checkbox" id="autoSuspend"> Automatically suspend inactive tabs
+  </label>
+  <label>
+    Inactivity Timeout (minutes):
+    <input type="number" id="inactivityTimeout" min="1" max="120" value="30">
+  </label>
+
+  <script src="settings.js"></script>
+</body>
+</html>

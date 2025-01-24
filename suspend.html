@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>U: Suspended Tab</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f1f1f1;
+      text-align: center;
+    }
+    .suspend-container {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      max-width: 400px;
+    }
+    .original-title {
+      color: #666;
+      font-size: 0.9em;
+      margin-bottom: 10px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="suspend-container">
+    <div id="originalTitle" class="original-title"></div>
+    <h1>U: Tab Suspended</h1>
+    <p>This tab is suspended to save resources.</p>
+    <button id="resumeBtn">Reload Tab</button>
+  </div>
+
+  <script src="suspend.js"></script>
+</body>
+</html>
